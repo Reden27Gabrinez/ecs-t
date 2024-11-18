@@ -1,0 +1,32 @@
+terraform {
+  source = "{{ .sourceUrl }}"
+}
+
+include "root" {
+  path = find_in_parent_folders()
+}
+
+# Comment this line if you want to have common variables per environment
+include "env" {
+  path           = find_in_parent_folders("env.hcl")
+  expose         = true
+}
+
+dependency "iam" {
+  config_path = ""
+  mock_outputs = {
+    iam_instance_role = "test-iam-profile-name"
+  }
+}
+
+# Change path depending on your need
+dependencies {
+  paths = ["../1-iam"]
+}
+
+inputs = {
+  # --------------------------------------------------------------------------------------------------------------------
+  # Required input variables
+  # --------------------------------------------------------------------------------------------------------------------
+  ecr_repo_name       = "${include.env.locals.project_name}-${include.env.locals.env}-cd-artifact"
+}
